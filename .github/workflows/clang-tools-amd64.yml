@@ -13,13 +13,13 @@ jobs:
         include:
           - clang-version: 18
             release: llvm-project-18.1.8.src
-          - os: linux
-            runner: ubuntu-20.04
-            os-cmake-args: '-DLLVM_BUILD_STATIC=ON -DCMAKE_CXX_FLAGS="-s -flto" ${POSIX_CMAKE_ARGS} ${LINUX_CMAKE_ARGS}'
-            build-args: '-j$(nproc)'
-            bindir: '/build/bin'
-            dotexe: ''
-            shacmd: 'sha512sum'
+          # - os: linux
+          #   runner: ubuntu-20.04
+          #   os-cmake-args: '-DLLVM_BUILD_STATIC=ON -DCMAKE_CXX_FLAGS="-s -flto" ${POSIX_CMAKE_ARGS} ${LINUX_CMAKE_ARGS}'
+          #   build-args: '-j$(nproc)'
+          #   bindir: '/build/bin'
+          #   dotexe: ''
+          #   shacmd: 'sha512sum'
           - os: macosx
             runner: macos-13
             os-cmake-args: '-DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++ -flto" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 ${POSIX_CMAKE_ARGS} ${MACOS_CMAKE_ARGS}'
@@ -89,23 +89,6 @@ jobs:
     - name: upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: clang-tools
+        name: clang-tools-${{ matrix.bindir }}
         path: "${{ matrix.release }}${{ matrix.bindir }}/clang-*-${{ env.suffix }}*"
-        retention-days: 1
-  draft-release:
-    runs-on: ubuntu-20.04
-    needs: build
-    steps:
-      - name: download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: clang-tools
-      - name: list files
-        run: ls -laR .
-      - name: draft release
-        uses: xresloader/upload-to-github-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          file: "clang-*"
-          draft: true
+        retention-days: 15
