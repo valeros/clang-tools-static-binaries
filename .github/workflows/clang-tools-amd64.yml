@@ -84,7 +84,7 @@ jobs:
         echo "Checksums are: "
         cat clang-tidy-${{ env.suffix }}.sha512sum
     - name: upload artifacts
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: clang-tools
         path: "${{ matrix.release }}${{ matrix.bindir }}/clang-*-${{ env.suffix }}*"
@@ -94,7 +94,7 @@ jobs:
     needs: build
     steps:
       - name: download artifacts
-        uses: actions/download-artifact@v2
+        uses: actions/download-artifact@v4
         with:
           name: clang-tools
       - name: list files
