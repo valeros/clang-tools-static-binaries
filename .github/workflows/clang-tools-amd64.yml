@@ -89,6 +89,6 @@ jobs:
     - name: upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: clang-tools-${{ matrix.bindir }}
+        name: clang-tools-${{ matrix.os }}
         path: "${{ matrix.release }}${{ matrix.bindir }}/clang-*-${{ env.suffix }}*"
         retention-days: 15
