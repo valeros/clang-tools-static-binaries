@@ -13,13 +13,13 @@ jobs:
         include:
           - clang-version: 18
             release: llvm-project-18.1.8.src
-          - os: linux
-            runner: ubuntu-20.04
-            os-cmake-args: '-DLLVM_BUILD_STATIC=ON -DCMAKE_CXX_FLAGS="-s -flto" ${POSIX_CMAKE_ARGS} ${LINUX_CMAKE_ARGS}'
-            build-args: '-j$(nproc)'
-            bindir: '/build/bin'
-            dotexe: ''
-            shacmd: 'sha512sum'
+          # - os: linux
+          #   runner: ubuntu-20.04
+          #   os-cmake-args: '-DLLVM_BUILD_STATIC=ON -DCMAKE_CXX_FLAGS="-s -flto" ${POSIX_CMAKE_ARGS} ${LINUX_CMAKE_ARGS}'
+          #   build-args: '-j$(nproc)'
+          #   bindir: '/build/bin'
+          #   dotexe: ''
+          #   shacmd: 'sha512sum'
           - os: macosx
             runner: macos-13
             os-cmake-args: '-DCMAKE_CXX_FLAGS="-static-libgcc -static-libstdc++ -flto" -DCMAKE_OSX_DEPLOYMENT_TARGET=10.15 ${POSIX_CMAKE_ARGS} ${MACOS_CMAKE_ARGS}'
@@ -27,15 +27,15 @@ jobs:
             bindir: '/build/bin'
             dotexe: ''
             shacmd: 'shasum -a512'
-          - os: windows
-            runner: windows-latest
-            os-cmake-args: '-Thost=x64 -DCMAKE_CXX_FLAGS="/MP /std:c++14" -DLLVM_USE_CRT_MINSIZEREL="MT"'
-            build-args: '--config MinSizeRel'
-            bindir: '/build/MinSizeRel/bin'
-            dotexe: '.exe'
-            shacmd: 'sha512sum.exe'
-            extra-tar-args: '--exclude=${RELEASE}/clang/test/Driver/Inputs/* --exclude=${RELEASE}/libcxx/test/std/input.output/filesystems/Inputs/static_test_env/* --exclude=${RELEASE}/libclc/amdgcn-mesa3d'
-            extra-tar-args-cfe: '--exclude=cfe-${version}.src/test/Driver/Inputs/*'
+          # - os: windows
+          #   runner: windows-latest
+          #   os-cmake-args: '-Thost=x64 -DCMAKE_CXX_FLAGS="/MP /std:c++14" -DLLVM_USE_CRT_MINSIZEREL="MT"'
+          #   build-args: '--config MinSizeRel'
+          #   bindir: '/build/MinSizeRel/bin'
+          #   dotexe: '.exe'
+          #   shacmd: 'sha512sum.exe'
+          #   extra-tar-args: '--exclude=${RELEASE}/clang/test/Driver/Inputs/* --exclude=${RELEASE}/libcxx/test/std/input.output/filesystems/Inputs/static_test_env/* --exclude=${RELEASE}/libclc/amdgcn-mesa3d'
+          #   extra-tar-args-cfe: '--exclude=cfe-${version}.src/test/Driver/Inputs/*'
     runs-on: ${{ matrix.runner }}
     env:
       COMMON_CMAKE_ARGS: '-DBUILD_SHARED_LIBS=OFF -DLLVM_ENABLE_PROJECTS="clang;clang-tools-extra"'
@@ -65,13 +65,16 @@ jobs:
       if: ${{ matrix.os == 'macosx' }}
       shell: bash
       run: sed -i.backup 's/gcc_eh.\*|/gcc_eh.*|gcc_ext.*|/g' $(find /usr/local/Cellar -name CMakeParseImplicitLinkInfo.cmake)
+    - name: install gcc-11
+      if: ${{ matrix.os == 'macosx' }}
+      run: brew install gcc@11
     - name: cmake
       run: cmake -S ${{ matrix.release }}/llvm -B ${{ matrix.release }}/build ${{ env.COMMON_CMAKE_ARGS }} ${{ matrix.os-cmake-args }} ${{ matrix.extra-cmake-args }}
     - name: build
-      run: cmake --build ${{ matrix.release }}/build ${{ matrix.build-args }} --target clang-format clang-query clang-tidy clang-apply-replacements
+      run: cmake --build ${{ matrix.release }}/build ${{ matrix.build-args }} --target clang-tidy
     - name: print dependencies
       if: ${{ matrix.os == 'macosx' }}
-      run: otool -L ${{ matrix.release }}/build/bin/clang-format
+      run: otool -L ${{ matrix.release }}/build/bin/clang-tidy
     - name: rename output binary
       run: |
         cd ${{ matrix.release }}${{ matrix.bindir }}
