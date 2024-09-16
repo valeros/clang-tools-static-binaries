@@ -9,7 +9,7 @@ jobs:
     strategy:
       matrix:
         clang-version: [ 18 ]
-        os: [ linux, macosx, windows ]
+        os: [ macosx, windows ]
         include:
           - clang-version: 18
             release: llvm-project-18.1.8.src
