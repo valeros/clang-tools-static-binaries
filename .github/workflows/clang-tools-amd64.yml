@@ -11,7 +11,7 @@ jobs:
         clang-version: [ 19 ]
         os: [ linux, windows ]
         include:
-          - clang-version: 18
+          - clang-version: 19
             release: llvm-project-19.1.0.src
           - os: linux
             runner: ubuntu-20.04
